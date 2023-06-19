@@ -1,6 +1,11 @@
-use std::{rc::Rc, cell::Cell};
+mod custom_button;
 
-use gtk::{glib::{self, closure_local}, prelude::*, Application, ApplicationWindow, Button, Orientation, Box};
+use custom_button::CustomButton;
+use gtk::{
+    glib::{self, closure_local},
+    prelude::*,
+    Application, ApplicationWindow,
+};
 
 const APP_ID: &str = "org.gtk_rs.HelloWorld1";
 const APP_TITLE: &str = "Title";
@@ -14,53 +19,24 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &Application) {
-    let button_increase: Button = Button::builder()
-        .label("Increase")
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
-        .build();
+    let button: CustomButton = CustomButton::new();
+    button.set_margin_top(12);
+    button.set_margin_bottom(12);
+    button.set_margin_start(12);
+    button.set_margin_end(12);
 
-    let button_decrease: Button = Button::builder()
-        .label("Decrease")
-        .margin_top(12)
-        .margin_bottom(12)
-        .margin_start(12)
-        .margin_end(12)
-        .build();
-
-    let number: Rc<Cell<i32>> = Rc::new(Cell::new(0));
-
-    button_increase.connect_closure(
-        "clicked",
+    button.connect_closure(
+        "max-number-reached",
         false,
-        closure_local!(@strong number, @strong button_decrease => move |button_increase: Button| {
-            number.set(number.get() + 1);
-            button_increase.set_label(&number.get().to_string());
-            button_decrease.set_label(&number.get().to_string());
-        })
+        closure_local!(move |_button: CustomButton, number: i32| {
+            println!("The maximum number {} has been reached", number)
+        }),
     );
-
-    button_decrease.connect_closure(
-        "clicked",
-        false,
-        closure_local!(@strong number, @strong button_increase => move |button_decrease: Button| {
-            number.set(number.get() - 1);
-            button_increase.set_label(&number.get().to_string());
-            button_decrease.set_label(&number.get().to_string());
-        })
-    );
-
-    let gtk_box: Box = gtk::Box::builder().orientation(Orientation::Vertical).build();
-
-    gtk_box.append(&button_increase);
-    gtk_box.append(&button_decrease);
 
     let window: ApplicationWindow = ApplicationWindow::builder()
         .application(app)
         .title(APP_TITLE)
-        .child(&gtk_box)
+        .child(&button)
         .build();
 
     window.present()
