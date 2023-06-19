@@ -1,9 +1,9 @@
-use std::{time::Duration, thread};
 use gtk::{
-    glib::{self},
+    glib::{self, clone, MainContext, Priority, Sender},
     prelude::*,
-    Application, ApplicationWindow, Button
+    Application, ApplicationWindow, Button,
 };
+use std::{thread, time::Duration};
 
 const APP_ID: &str = "org.gtk_rs.HelloWorld1";
 const APP_TITLE: &str = "Title";
@@ -25,12 +25,28 @@ fn build_ui(app: &Application) {
         .margin_end(12)
         .build();
 
-    button.connect_clicked(|_| {
+    let (sender, receiver) = MainContext::channel(Priority::default());
+
+    button.connect_clicked(move |_| {
+        let sender: Sender<bool> = sender.clone();
+
         thread::spawn(move || {
-            let five_seconds = Duration::from_secs(5);
-            std::thread::sleep(five_seconds);
+            sender.send(false).expect("Could not send through channel.");
+            std::thread::sleep(Duration::from_secs(10));
+            sender.send(true).expect("Could not send through channel.");
         });
     });
+
+    // The main loop executes the closure as soon as it receives the message
+    receiver.attach(
+        None,
+        clone!(@weak button => @default-return Continue(false),
+                    move |enable_button| {
+                        button.set_sensitive(enable_button);
+                        Continue(true)
+                    }
+        ),
+    );
 
     let window: ApplicationWindow = ApplicationWindow::builder()
         .application(app)
