@@ -1,4 +1,7 @@
-use gtk::{glib, prelude::*, Align, Application, ApplicationWindow, Box, Orientation, Switch};
+mod custom_button;
+
+use custom_button::CustomButton;
+use gtk::{glib, prelude::*, Align, Application, ApplicationWindow, Box, Orientation};
 
 const APP_ID: &str = "org.gtk_rs.GObjectProperties1";
 
@@ -11,13 +14,26 @@ fn main() -> glib::ExitCode {
 }
 
 fn build_ui(app: &Application) {
-    let switch_1: Switch = Switch::new();
-    let switch_2: Switch = Switch::new();
+    let button_1: CustomButton = CustomButton::new();
+    let button_2: CustomButton = CustomButton::new();
 
-    switch_1
-        .bind_property("active", &switch_2, "active")
+    button_1
+        .bind_property("number", &button_2, "number")
+        .transform_to(|_, number: i32| {
+            let incremented_number: i32 = number + 1;
+            Some(incremented_number.to_value())
+        })
+        .transform_from(|_, number: i32| {
+            let decremented_number: i32 = number - 1;
+            Some(decremented_number.to_value())
+        })
         .bidirectional()
+        .sync_create()
         .build();
+
+    button_1.connect_number_notify(|button| {
+        println!("Then current number of `button_1` is {}.", button.number());
+    });
 
     let gtk_box: Box = Box::builder()
         .margin_top(12)
@@ -30,8 +46,8 @@ fn build_ui(app: &Application) {
         .orientation(Orientation::Vertical)
         .build();
 
-    gtk_box.append(&switch_1);
-    gtk_box.append(&switch_2);
+    gtk_box.append(&button_1);
+    gtk_box.append(&button_2);
 
     let window: ApplicationWindow = ApplicationWindow::builder()
         .application(app)
