@@ -1,19 +1,12 @@
 use gtk::prelude::*;
 
 fn main() {
-    let integer_value = 10.to_value();
-    let integer = integer_value.get::<i32>().expect("The value needs to be of type i32.");
+    let integer_variant = 10.to_variant();
+    let integer = integer_variant.get::<i32>().expect("The variant needs to be of type i32");
     assert_eq!(integer, 10);
 
-    let string_value = "Hello!".to_value();
-    let string = string_value.get::<String>().expect("The value needs to be of type of String.");
-    assert_eq!(string, "Hello!".to_string());
-
-    let string_some_value = "Hello!".to_value();
-    let string_some = string_some_value.get::<Option<String>>().expect("The value needs to be of type `Option<String>.`");
-    assert_eq!(string_some, Some("Hello!".to_string()));
-
-    let string_none_value = None::<String>.to_value();
-    let string_none = string_none_value.get::<Option<String>>().expect("The value needs to be of type `Option<String>`.");
-    assert_eq!(string_none, None);
+    let variant = vec!["Hello", "there!"].to_variant();
+    assert_eq!(variant.n_children(), 2);
+    let vec = &variant.get::<Vec<String>>().expect("The variant needs to be of type `String`.");
+    assert_eq!(vec[0], "Hello");
 }
