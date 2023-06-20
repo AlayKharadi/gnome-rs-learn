@@ -5,7 +5,7 @@ use gtk::{
     prelude::{ApplicationExt, ApplicationExtManual, Cast, GObjectPropertyExpressionExt},
     traits::GtkWindowExt,
     Application, ApplicationWindow, Label, ListItem, ListView, NoSelection, PolicyType,
-    ScrolledWindow, SignalListItemFactory, StringList, Widget, StringObject,
+    ScrolledWindow, SignalListItemFactory, StringList, StringObject, Widget,
 };
 
 const APP_ID: &str = "org.gtk_rs.ListWidgets";
