@@ -6,7 +6,7 @@
     mkdir -p $HOME/.local/share/glib-2.0/schemas/
     ```
     ```
-    cp src/org.gtk_rs.Settings.gschema.xml $HOME/.local/share/glib-2.0/schemas/
+    cp src/schemas/org.gtk_rs.Settings.gschema.xml $HOME/.local/share/glib-2.0/schemas/
     ```
 - link the file with our application
     ```
