@@ -1,5 +1,4 @@
 use gio::Settings;
-use gtk::glib::signal::Inhibit;
 use gtk::prelude::*;
 use gtk::{gio, glib, Align, Application, ApplicationWindow, Switch};
 
@@ -23,8 +22,6 @@ fn build_ui(app: &Application) {
     // Get the last switch state from the settings
     let is_switch_enabled: bool = settings.boolean("is-switch-enabled");
 
-    println!("{}", is_switch_enabled);
-
     // Create a switch
     let switch: Switch = Switch::builder()
         .margin_top(48)
@@ -36,15 +33,7 @@ fn build_ui(app: &Application) {
         .state(is_switch_enabled)
         .build();
 
-    switch.connect_state_set(move |_, is_enabled: bool| {
-        // Save changed switch state in the settings
-        settings
-            .set_boolean("is-switch-enabled", is_enabled)
-            .expect("Could not set setting.");
-        println!("{}", is_enabled);
-        // Don't inhibit the default handler
-        Inhibit(false)
-    });
+    settings.bind("is-switch-enabled", &switch, "active").build();
 
     // Create a window
     let window: ApplicationWindow = ApplicationWindow::builder()
