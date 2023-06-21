@@ -1,13 +1,20 @@
+use std::cell::Cell;
+
 use crate::custom_button::CustomButton;
 
 use gtk::{
-    glib::{self, subclass::InitializingObject},
+    glib::{self, object_subclass, subclass::InitializingObject},
     subclass::{
-        prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass, ObjectImplExt},
-        widget::{WidgetClassSubclassExt, WidgetImpl, CompositeTemplateClass, CompositeTemplateInitializingExt},
+        prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass},
+        widget::{
+            CompositeTemplateCallbacksClass, CompositeTemplateClass,
+            CompositeTemplateInitializingExt, WidgetClassSubclassExt, WidgetImpl,
+        },
         window::WindowImpl,
     },
-    ApplicationWindow, CompositeTemplate, TemplateChild, traits::ButtonExt,
+    template_callbacks,
+    traits::ButtonExt,
+    ApplicationWindow, CompositeTemplate, TemplateChild,
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -15,9 +22,10 @@ use gtk::{
 pub struct CustomWindow {
     #[template_child]
     pub button: TemplateChild<CustomButton>,
+    pub number: Cell<i32>,
 }
 
-#[glib::object_subclass]
+#[object_subclass]
 impl ObjectSubclass for CustomWindow {
     const NAME: &'static str = "MyGtkAppWindow";
     type Type = super::CustomWindow;
@@ -25,6 +33,7 @@ impl ObjectSubclass for CustomWindow {
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
+        klass.bind_template_callbacks();
     }
 
     fn instance_init(obj: &InitializingObject<Self>) {
@@ -32,14 +41,17 @@ impl ObjectSubclass for CustomWindow {
     }
 }
 
-impl ObjectImpl for CustomWindow {
-    fn constructed(&self) {
-        self.parent_constructed();
-        self.button.connect_clicked(move |button: &CustomButton| {
-            button.set_label("Hello world!");
-        });
+#[template_callbacks]
+impl CustomWindow {
+    #[template_callback]
+    fn handle_button_clicked(&self, button: &CustomButton) {
+        let number_increased: i32 = self.number.get() + 1;
+        self.number.set(number_increased);
+        button.set_label(&number_increased.to_string());
     }
 }
+
+impl ObjectImpl for CustomWindow {}
 
 impl WidgetImpl for CustomWindow {}
 
