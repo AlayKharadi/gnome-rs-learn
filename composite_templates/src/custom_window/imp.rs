@@ -1,3 +1,5 @@
+use crate::custom_button::CustomButton;
+
 use gtk::{
     glib::{self, subclass::InitializingObject},
     subclass::{
@@ -5,14 +7,14 @@ use gtk::{
         widget::{WidgetClassSubclassExt, WidgetImpl, CompositeTemplateClass, CompositeTemplateInitializingExt},
         window::WindowImpl,
     },
-    ApplicationWindow, Button, CompositeTemplate, TemplateChild, traits::ButtonExt,
+    ApplicationWindow, CompositeTemplate, TemplateChild, traits::ButtonExt,
 };
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/org/gtk_rs/resources/window.ui")]
 pub struct CustomWindow {
     #[template_child]
-    pub button: TemplateChild<Button>,
+    pub button: TemplateChild<CustomButton>,
 }
 
 #[glib::object_subclass]
@@ -33,7 +35,7 @@ impl ObjectSubclass for CustomWindow {
 impl ObjectImpl for CustomWindow {
     fn constructed(&self) {
         self.parent_constructed();
-        self.button.connect_clicked(move |button: &Button| {
+        self.button.connect_clicked(move |button: &CustomButton| {
             button.set_label("Hello world!");
         });
     }

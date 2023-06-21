@@ -1,4 +1,5 @@
 mod custom_window;
+mod custom_button;
 
 use gtk::{
     gio,
@@ -25,5 +26,7 @@ fn main() -> ExitCode {
 
 fn build_ui(app: &Application) {
     let window: CustomWindow = CustomWindow::new(app);
+    window.set_default_width(400);
+    window.set_default_height(50);
     window.present();
 }
