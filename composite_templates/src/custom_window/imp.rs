@@ -8,20 +8,18 @@ use gtk::{
         prelude::{ApplicationWindowImpl, ObjectImpl, ObjectSubclass},
         widget::{
             CompositeTemplateCallbacksClass, CompositeTemplateClass,
-            CompositeTemplateInitializingExt, WidgetClassSubclassExt, WidgetImpl,
+            CompositeTemplateInitializingExt, WidgetImpl,
         },
         window::WindowImpl,
     },
     template_callbacks,
     traits::ButtonExt,
-    ApplicationWindow, CompositeTemplate, TemplateChild,
+    ApplicationWindow, CompositeTemplate, prelude::StaticTypeExt,
 };
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/org/gtk_rs/resources/window.ui")]
 pub struct CustomWindow {
-    #[template_child]
-    pub button: TemplateChild<CustomButton>,
     pub number: Cell<i32>,
 }
 
@@ -32,6 +30,8 @@ impl ObjectSubclass for CustomWindow {
     type ParentType = ApplicationWindow;
 
     fn class_init(klass: &mut Self::Class) {
+        CustomButton::ensure_type();
+
         klass.bind_template();
         klass.bind_template_callbacks();
     }
