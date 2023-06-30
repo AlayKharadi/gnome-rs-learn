@@ -1,8 +1,8 @@
 use gtk::{
-    gio::SimpleAction,
+    gio::{SimpleAction, SimpleActionGroup},
     glib::{self, ExitCode, clone},
     prelude::{ActionMapExt, ApplicationExt, ApplicationExtManual},
-    traits::{GtkWindowExt, GtkApplicationExt},
+    traits::{GtkWindowExt, GtkApplicationExt, WidgetExt},
     Application, ApplicationWindow,
 };
 
@@ -33,8 +33,11 @@ fn build_ui(app: &Application) {
     action_close.connect_activate(clone!(@weak window => move |_, _| {
         window.close();
     }));
-
     window.add_action(&action_close);
+
+    let actions: SimpleActionGroup = SimpleActionGroup::new();
+    window.insert_action_group("win", Some(&actions));
+    actions.add_action(&action_close);
 
     // Present window
     window.present();
