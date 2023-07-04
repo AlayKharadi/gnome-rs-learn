@@ -3,12 +3,12 @@ mod imp;
 use gio::SimpleAction;
 use glib::{clone, Object};
 use gtk::{
-    gio::{self, ActionGroup, ActionMap},
+    gio::{self, ActionGroup, ActionMap, PropertyAction},
     glib::{self, Variant},
     prelude::{ActionExt, ActionMapExt, StaticVariantType, ToVariant},
     subclass::prelude::ObjectSubclassIsExt,
-    Accessible, Application, ApplicationWindow, Buildable, ConstraintTarget, Label, Native, Root,
-    ShortcutManager, Widget, Window,
+    Accessible, Application, ApplicationWindow, Box, Buildable, ConstraintTarget, Label, Native, Root,
+    ShortcutManager, Widget, Window, Orientation, Button, traits::OrientableExt,
 };
 
 glib::wrapper! {
@@ -59,5 +59,39 @@ impl CustomWindow {
             }),
         );
         self.add_action(&action_count);
+
+        // Add property action "button-frame" to `window`
+        let button: Button = self.imp().button.get();
+        let action_button_frame: PropertyAction =
+            PropertyAction::new("button-frame", &button, "has-frame");
+        self.add_action(&action_button_frame);
+
+        // Add stateful action "orientation" to `window` taking a string as parameter
+        let gtk_box: Box = self.imp().gtk_box.get();
+        let action_orientation = SimpleAction::new_stateful(
+            "orientation",
+            Some(&String::static_variant_type()),
+            "Vertical".to_variant(),
+        );
+
+        action_orientation.connect_activate(clone!(@weak gtk_box =>
+            move |action, parameter| {
+                // Get parameter
+                let parameter = parameter
+                    .expect("Could not get parameter.")
+                    .get::<String>()
+                    .expect("The value needs to be of type `String`.");
+
+                let orientation = match parameter.as_str() {
+                    "Horizontal" => Orientation::Horizontal,
+                    "Vertical" => Orientation::Vertical,
+                    _ => unreachable!()
+                };
+
+                // Set orientation and save state
+                gtk_box.set_orientation(orientation);
+                action.set_state(parameter.to_variant());
+        }));
+        self.add_action(&action_orientation);
     }
 }

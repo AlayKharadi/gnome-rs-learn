@@ -10,7 +10,7 @@ use gtk::{
         },
         window::WindowImpl,
     },
-    ApplicationWindow, CompositeTemplate, Label, TemplateChild,
+    ApplicationWindow, Box, CompositeTemplate, Label, TemplateChild, Button,
 };
 
 #[derive(CompositeTemplate, Default)]
@@ -18,6 +18,10 @@ use gtk::{
 pub struct CustomWindow {
     #[template_child]
     pub label: TemplateChild<Label>,
+    #[template_child]
+    pub gtk_box: TemplateChild<Box>,
+    #[template_child]
+    pub button: TemplateChild<Button>
 }
 
 #[glib::object_subclass]
