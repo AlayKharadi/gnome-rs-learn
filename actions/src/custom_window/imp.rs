@@ -1,5 +1,5 @@
 use gtk::{
-    glib::{self, subclass::InitializingObject},
+    glib::{self, subclass::InitializingObject, once_cell::sync::OnceCell},
     subclass::{
         prelude::{
             ApplicationWindowImpl, ObjectImpl, ObjectImplExt, ObjectSubclass, ObjectSubclassExt,
@@ -10,18 +10,19 @@ use gtk::{
         },
         window::WindowImpl,
     },
-    ApplicationWindow, Box, CompositeTemplate, Label, TemplateChild, Button,
+    ApplicationWindow, Box, CompositeTemplate, Label, TemplateChild, Button, gio::Settings,
 };
 
 #[derive(CompositeTemplate, Default)]
 #[template(resource = "/org/gtk_rs/resources/window.ui")]
 pub struct CustomWindow {
     #[template_child]
-    pub label: TemplateChild<Label>,
-    #[template_child]
     pub gtk_box: TemplateChild<Box>,
     #[template_child]
-    pub button: TemplateChild<Button>
+    pub button: TemplateChild<Button>,
+    #[template_child]
+    pub label: TemplateChild<Label>,
+    pub settings: OnceCell<Settings>,
 }
 
 #[glib::object_subclass]
@@ -44,7 +45,10 @@ impl ObjectSubclass for CustomWindow {
 impl ObjectImpl for CustomWindow {
     fn constructed(&self) {
         self.parent_constructed();
-        self.obj().setup_actions();
+        let obj = self.obj();
+        obj.setup_settings();
+        obj.setup_actions();
+        obj.bind_settings();
     }
 }
 

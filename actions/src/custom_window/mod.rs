@@ -3,13 +3,15 @@ mod imp;
 use gio::SimpleAction;
 use glib::{clone, Object};
 use gtk::{
-    gio::{self, ActionGroup, ActionMap, PropertyAction},
+    gio::{self, ActionGroup, ActionMap, PropertyAction, Settings, Action},
     glib::{self, Variant},
-    prelude::{ActionExt, ActionMapExt, StaticVariantType, ToVariant},
+    prelude::{ActionExt, ActionMapExt, StaticVariantType, ToVariant, SettingsExtManual, ToValue, SettingsExt},
     subclass::prelude::ObjectSubclassIsExt,
     Accessible, Application, ApplicationWindow, Box, Buildable, ConstraintTarget, Label, Native, Root,
-    ShortcutManager, Widget, Window, Orientation, Button, traits::OrientableExt,
+    ShortcutManager, Widget, Window, Orientation, Button, traits::{OrientableExt, GtkWindowExt},
 };
+
+use crate::APP_ID;
 
 glib::wrapper! {
     pub struct CustomWindow(ObjectSubclass<imp::CustomWindow>)
@@ -23,6 +25,22 @@ impl CustomWindow {
         // Create new CustomWindow
         Object::builder().property("application", app).build()
     }
+
+    fn setup_settings(&self) {
+        let settings = Settings::new(APP_ID);
+        self.imp()
+            .settings
+            .set(settings)
+            .expect("`settings` should not be set before calling `setup_settings`.");
+    }
+
+    fn settings(&self) -> &Settings {
+        self.imp()
+            .settings
+            .get()
+            .expect("`settings` should be set in `setup_settings`.")
+    }
+
 
     fn setup_actions(&self) {
         let label: Label = self.imp().label.get();
@@ -93,5 +111,50 @@ impl CustomWindow {
                 action.set_state(parameter.to_variant());
         }));
         self.add_action(&action_orientation);
+
+        // Add action "close" to `window` taking no parameter
+        let action_close: SimpleAction = SimpleAction::new("close", None);
+
+        action_close.connect_activate(clone!(@weak self as window => move |_, _| {
+            window.close();
+        }));
+        self.add_action(&action_close);
+
+        // Create action from key "button-frame" and add to action group "win"
+        let action_button_frame: Action = self.settings().create_action("button-frame");
+        self.add_action(&action_button_frame);
+
+        // Create action from key "orientation" and add to action group "win"
+        let action_orientation: Action = self.settings().create_action("orientation");
+        self.add_action(&action_orientation);
+    }
+
+    fn bind_settings(&self) {
+        // Get state
+
+        // Bind setting "button-frame" to "has-frame" property of `button`
+        let button: Button = self.imp().button.get();
+        self.settings()
+            .bind("button-frame", &button, "has-frame")
+            .build();
+
+        // Bind setting "orientation" to "orientation" property of `button`
+        let gtk_box: Box = self.imp().gtk_box.get();
+        self.settings()
+            .bind("orientation", &gtk_box, "orientation")
+            .mapping(|variant, _| {
+                let orientation = variant
+                    .get::<String>()
+                    .expect("The variant needs to be of type `String`.");
+
+                let orientation = match orientation.as_str() {
+                    "Horizontal" => Orientation::Horizontal,
+                    "Vertical" => Orientation::Vertical,
+                    _ => unreachable!(),
+                };
+
+                Some(orientation.to_value())
+            })
+            .build();
     }
 }
