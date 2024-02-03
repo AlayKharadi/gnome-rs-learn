@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use gtk::{
     glib::{self, ParamSpec, Properties, Value},
     prelude::ObjectExt,
-    subclass::prelude::{ObjectImpl, ObjectSubclass, DerivedObjectProperties},
+    subclass::prelude::{DerivedObjectProperties, ObjectImpl, ObjectSubclass},
 };
 
 use super::TaskData;

@@ -1,6 +1,10 @@
 mod imp;
 
-use gtk::glib::{self, Object};
+use gtk::{
+    glib::{self, Object},
+    subclass::prelude::ObjectSubclassIsExt,
+};
+use serde::{Deserialize, Serialize};
 
 glib::wrapper! {
     pub struct TaskObject(ObjectSubclass<imp::TaskObject>);
@@ -13,9 +17,21 @@ impl TaskObject {
             .property("content", content)
             .build()
     }
+
+    pub fn is_completed(&self) -> bool {
+        self.imp().data.borrow().completed
+    }
+
+    pub fn task_data(&self) -> TaskData {
+        self.imp().data.borrow().clone()
+    }
+
+    pub fn from_task_data(task_data: TaskData) -> Self {
+        Self::new(task_data.completed, task_data.content)
+    }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Serialize, Deserialize)]
 pub struct TaskData {
     pub completed: bool,
     pub content: String,

@@ -1,10 +1,11 @@
 mod imp;
 
 use gtk::{
-    glib::{self, Object, Binding},
+    glib::{self, Binding, Object},
     pango,
     prelude::{ObjectExt, ToValue},
-    subclass::prelude::ObjectSubclassIsExt, CheckButton, Label,
+    subclass::prelude::ObjectSubclassIsExt,
+    CheckButton, Label,
 };
 use pango::{AttrInt, AttrList};
 

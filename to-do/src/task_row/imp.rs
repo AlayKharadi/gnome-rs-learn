@@ -4,7 +4,10 @@ use gtk::{
     glib::{self, Binding},
     subclass::{
         prelude::{BoxImpl, ObjectImpl, ObjectSubclass},
-        widget::{WidgetImpl, WidgetClassSubclassExt, CompositeTemplateClass, CompositeTemplateInitializingExt}
+        widget::{
+            CompositeTemplateClass, CompositeTemplateInitializingExt, WidgetClassSubclassExt,
+            WidgetImpl,
+        },
     },
     CheckButton, CompositeTemplate, Label, TemplateChild,
 };

@@ -3,12 +3,16 @@ mod imp;
 use gio::SimpleAction;
 use glib::{clone, Object};
 use gtk::{
-    gio::{self, ActionGroup, ActionMap, PropertyAction, Settings, Action},
+    gio::{self, Action, ActionGroup, ActionMap, PropertyAction, Settings},
     glib::{self, Variant},
-    prelude::{ActionExt, ActionMapExt, StaticVariantType, ToVariant, SettingsExtManual, ToValue, SettingsExt},
+    prelude::{
+        ActionExt, ActionMapExt, SettingsExt, SettingsExtManual, StaticVariantType, ToValue,
+        ToVariant,
+    },
     subclass::prelude::ObjectSubclassIsExt,
-    Accessible, Application, ApplicationWindow, Box, Buildable, ConstraintTarget, Label, Native, Root,
-    ShortcutManager, Widget, Window, Orientation, Button, traits::{OrientableExt, GtkWindowExt},
+    traits::{GtkWindowExt, OrientableExt},
+    Accessible, Application, ApplicationWindow, Box, Buildable, Button, ConstraintTarget, Label,
+    Native, Orientation, Root, ShortcutManager, Widget, Window,
 };
 
 use crate::APP_ID;
@@ -27,7 +31,7 @@ impl CustomWindow {
     }
 
     fn setup_settings(&self) {
-        let settings = Settings::new(APP_ID);
+        let settings: Settings = Settings::new(APP_ID);
         self.imp()
             .settings
             .set(settings)
@@ -40,7 +44,6 @@ impl CustomWindow {
             .get()
             .expect("`settings` should be set in `setup_settings`.")
     }
-
 
     fn setup_actions(&self) {
         let label: Label = self.imp().label.get();
@@ -118,6 +121,7 @@ impl CustomWindow {
         action_close.connect_activate(clone!(@weak self as window => move |_, _| {
             window.close();
         }));
+
         self.add_action(&action_close);
 
         // Create action from key "button-frame" and add to action group "win"
