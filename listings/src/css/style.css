@@ -1,0 +1,4 @@
+/* destructive-action and suggested-action are default styles added into the library */
+button.destructive-action, button.suggested-action {
+    color: black;
+}
